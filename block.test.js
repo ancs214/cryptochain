@@ -1,9 +1,9 @@
 const Block = require('./block')
-const { GENESIS_DATA } = require('./config')
+const { GENESIS_DATA, MINE_RATE } = require('./config')
 const cryptoHash = require('./crypto-hash')
 
 describe('Block', () => {
-  const timestamp = 'a-date'
+  const timestamp = 2000
   const lastHash = 'foo-hash'
   const hash = 'bar-hash'
   const data = ['blockchain', 'data']
@@ -77,6 +77,45 @@ describe('Block', () => {
       expect(minedBlock.hash.substring(0, minedBlock.difficulty))
         //JS repeat function will allow number of zeroes to repeat the 'difficulty criteria' amount of times
         .toEqual('0'.repeat(minedBlock.difficulty))
+    })
+
+    it('adjusts the difficulty', () => {
+      //create array 'possible results' with index 0 and 1 defined below
+      const possibleResults = [
+        lastBlock.difficulty + 1,
+        lastBlock.difficulty - 1,
+      ]
+
+      //difficulty should be either the lastBlock difficulty +1 or -1
+      expect(possibleResults.includes(minedBlock.difficulty)).toBe(true)
+    })
+  })
+
+  describe('adjustDifficulty()', () => {
+    it('raises the difficulty for a too quickly mined block', () => {
+      expect(
+        Block.adjustDifficulty({
+          originalBlock: block,
+          //if time to mine is lower than our mine rate threshhold, increase difficulty
+          timestamp: block.timestamp + MINE_RATE - 100,
+        })
+      ).toEqual(block.difficulty + 1)
+    })
+
+    it('lowers the difficulty for a too slowly mined block', () => {
+      expect(
+        Block.adjustDifficulty({
+          originalBlock: block,
+          //if time to mine is greater than our mine rate threshhold, decrease difficulty
+          timestamp: block.timestamp + MINE_RATE + 100,
+        })
+      ).toEqual(block.difficulty - 1)
+    })
+
+    it('it has a lower limit of 1', () => {
+      block.difficulty = -1
+
+      expect(Block.adjustDifficulty({ originalBlock: block })).toEqual(1)
     })
   })
 })

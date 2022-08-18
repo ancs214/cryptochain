@@ -1,4 +1,4 @@
-const { GENESIS_DATA } = require('./config')
+const { GENESIS_DATA, MINE_RATE } = require('./config')
 const cryptoHash = require('./crypto-hash')
 
 //create Block class
@@ -24,13 +24,18 @@ class Block {
     let hash, timestamp
     const lastHash = lastBlock.hash
     //destructure difficulty value from lastBlock
-    const { difficulty } = lastBlock
+    let { difficulty } = lastBlock
     let nonce = 0
 
-    //while hash.substring does not have the correct difficulty criteria, increase nonce by one and run again
+    //while hash.substring does not have the correct difficulty criteria, increase nonce by one, adjust difficulty, and run again`
     do {
       nonce++
       timestamp = Date.now()
+      //adjust difficulty relevant to the timestamp of last block
+      difficulty = Block.adjustDifficulty({
+        originalBlock: lastBlock,
+        timestamp,
+      })
       hash = cryptoHash(timestamp, lastHash, data, nonce, difficulty)
     } while (hash.substring(0, difficulty) !== '0'.repeat(difficulty))
 
@@ -42,6 +47,17 @@ class Block {
       nonce,
       hash,
     })
+  }
+
+  static adjustDifficulty({ originalBlock, timestamp }) {
+    const { difficulty } = originalBlock
+
+    //do not allow difficulty to go into negatives
+    if (difficulty < 1) return 1
+
+    if (timestamp - originalBlock.timestamp > MINE_RATE) return difficulty - 1
+
+    return difficulty + 1
   }
 }
 
