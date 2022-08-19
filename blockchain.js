@@ -37,11 +37,9 @@ class Blockchain {
       return false
 
     for (let i = 1; i < chain.length; i++) {
-      const block = chain[i]
-
+      const { timestamp, lastHash, hash, nonce, difficulty, data } = chain[i]
       const actualLastHash = chain[i - 1].hash
-
-      const { timestamp, lastHash, hash, nonce, difficulty, data } = block
+      const lastDifficulty = chain[i - 1].difficulty
 
       if (lastHash !== actualLastHash) return false
 
@@ -54,6 +52,8 @@ class Blockchain {
       )
 
       if (hash !== validatedHash) return false
+      //return false if change in difficulty is greater than 1 either negatively or positively (Math absolute value)
+      if (Math.abs(lastDifficulty - difficulty) > 1) return false
     }
 
     return true
