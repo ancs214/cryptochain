@@ -41,7 +41,13 @@ class PubSub {
   }
 
   publish({ channel, message }) {
-    this.publisher.publish(channel, message)
+    //since subscriber is unsubscribed in this local instance, they will not get the message they just published
+    this.subscriber.unsubscribe(channel, () => {
+      this.publisher.publish(channel, message, () => {
+        //resubscribe after they publish their message
+        this.subscriber.subscribe(channel)
+      })
+    })
   }
 
   broadcastChain() {
