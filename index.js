@@ -3,7 +3,7 @@ const express = require('express')
 //using to sync chain on request
 const request = require('request')
 const Blockchain = require('./blockchain')
-const PubSub = require('./pubsub')
+const PubSub = require('./app/pubsub')
 
 const app = express()
 const blockchain = new Blockchain()
