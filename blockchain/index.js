@@ -1,5 +1,5 @@
 const Block = require('./block')
-const cryptoHash = require('../util/crypto-hash')
+const { cryptoHash } = require('../util')
 
 //create Blockchain class with Block class's genesis block
 class Blockchain {

@@ -1,6 +1,5 @@
 const { STARTING_BALANCE } = require('../config')
-const { ec } = require('../util')
-const cryptoHash = require('../util/crypto-hash')
+const { ec, cryptoHash } = require('../util')
 
 //create wallet class with starting balance of 1000
 class Wallet {
