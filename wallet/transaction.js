@@ -29,8 +29,17 @@ class Transaction {
   }
 
   update({ senderWallet, recipient, amount }) {
-    //set recipient to the amount
-    this.outputMap[recipient] = amount
+    if (amount > this.outputMap[senderWallet.publicKey]) {
+      throw new Error('Amount exceeds balance')
+    }
+
+    //if the recipient does not already exist in output map...
+    if (!this.outputMap[recipient]) {
+      this.outputMap[recipient] = amount
+    } else {
+      //if recipient already exists in output map, add the amount to the existing recipient
+      this.outputMap[recipient] = this.outputMap[recipient] + amount
+    }
 
     //subtract amount from senderWallet publicKey
     this.outputMap[senderWallet.publicKey] =
