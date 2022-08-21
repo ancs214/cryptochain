@@ -7,7 +7,13 @@ const cryptoHash = (...inputs) => {
   const hash = crypto.createHash('sha256')
 
   //updates hash content with the input data; takes in a string so we can use join. also sort the inputs so it produces the same result no matter what order the inputs are in
-  hash.update(inputs.sort().join(' '))
+  //map over all inputs and stringify - if we keep it an object, it will not create a new hash after changing properties
+  hash.update(
+    inputs
+      .map((input) => JSON.stringify(input))
+      .sort()
+      .join(' ')
+  )
 
   //return encoding of the returned hash value in binary form using hex-to-binary npm
   return hash.digest('hex')

@@ -28,6 +28,18 @@ class Transaction {
     }
   }
 
+  update({ senderWallet, recipient, amount }) {
+    //set recipient to the amount
+    this.outputMap[recipient] = amount
+
+    //subtract amount from senderWallet publicKey
+    this.outputMap[senderWallet.publicKey] =
+      this.outputMap[senderWallet.publicKey] - amount
+
+    //create new signature for input with createInput func now that transaction has been updated
+    this.input = this.createInput({ senderWallet, outputMap: this.outputMap })
+  }
+
   static validTransaction(transaction) {
     //destructure both transaction and input
     const {
