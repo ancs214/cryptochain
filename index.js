@@ -4,9 +4,13 @@ const express = require('express')
 const request = require('request')
 const Blockchain = require('./blockchain')
 const PubSub = require('./app/pubsub')
+const TransactionPool = require('./wallet/transaction-pool')
+const Wallet = require('./wallet')
 
 const app = express()
 const blockchain = new Blockchain()
+const transactionPool = new TransactionPool()
+const wallet = new Wallet()
 const pubsub = new PubSub({ blockchain })
 
 //for use with 'request' to sync chain
@@ -31,6 +35,22 @@ app.post('/api/mine', (req, res) => {
 
   //show user the updated blocks after their post request
   res.redirect('/api/blocks')
+})
+
+app.post('/api/transact', (req, res) => {
+  //user specifies amount and recipient in request body
+  const { amount, recipient } = req.body
+
+  //create transaction
+  const transaction = wallet.createTransaction({ recipient, amount })
+
+  //set transaction to transactionPool
+  transactionPool.setTransaction(transaction)
+
+  console.log('transactionPool', transactionPool)
+
+  //respond with json object of transaction
+  res.json({ transaction })
 })
 
 //use 'request' to sync chains
